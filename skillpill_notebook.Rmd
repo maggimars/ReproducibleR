@@ -42,7 +42,7 @@ knitr::opts_chunk$set(cache=TRUE, fig.path='figures/', fig.width=8, fig.height=5
 
 This saves all figures in the directory `figures` and sets the default figure size
 
-## R Markdown
+# R Markdown
 
 This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
@@ -52,9 +52,11 @@ Rmarkdown Cheatsheet: https://rmarkdown.rstudio.com/lesson-15.html
 
 The number of hashes equals the header level.
 
+## h2
+
 ### h3
 
-#### h4
+### h4
 
 placing a single asterisk on either side of a phrase makes it *italic*. 
 
@@ -76,7 +78,7 @@ summary(cars)
 
 Execute this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
 
-### Including Plots & Images
+## Including Plots & Images
 
 You can also embed plots, for example:
 
@@ -118,7 +120,7 @@ You can also include images from your local computer or from the web:
 
 ![](https://github.com/allisonhorst/stats-illustrations/raw/master/rstats-artwork/rmarkdown_wizards.png) 
 
-### Adding tables 
+## Adding tables 
 
 Can type out tables: 
 
@@ -139,12 +141,12 @@ kable(head(cars))
 
 *left, right, center adjust* 
 
-### Knitting 
+## Knitting 
 When you knit the file, an HTML file containing the code and output will be saved alongside it (click the *Knit* button or press *Cmd+Shift+K* to preview the HTML file). 
 
 The preview shows you a rendered HTML copy of the contents of the editor (Viewer tab).
 
-## Rprojects 
+# Rprojects 
 
 **Rproject Benefits:**
 
@@ -192,9 +194,9 @@ We will use the data later, but we can get a general sense of the data by lookin
 
 `cd -`
 
-## Git 
+# GitHub 
 
-go to your github account and make a new repository 
+go to your GitHub account and make a new repository 
 DO NOT initialize with a README 
 
 follow the instructions on the next page 
@@ -213,20 +215,12 @@ git push -u origin master
 
 try also adding your data directory to your Github repository!
 
-when your data is in a github repo - you can also use it directly from the repo:
-
-```{r}
-library(data.table)
-
-#fread("https://raw.githubusercontent.com/swcarpentry/r-novice-gapminder/gh-pages/_episodes_rmd/data/gapminder_data.csv")
-```
-
 Alternatively - you can use the Rstudio interface to version control with Git
 https://swcarpentry.github.io/git-novice/14-supplemental-rstudio/
 
 (I prefer command line) 
 
-## A few notes on getting help
+# A few notes on getting help
 
 `?function_name`
 
@@ -245,4 +239,369 @@ Without any arguments, `vignette()` will list all vignettes for all installed pa
 
 And then there is always google.  
 
+# Reproducible and Streamlined Analyses (Day 2) 
 
+## Exploring the sample data
+
+We already looked at the sample data in Terminal and saw that it was a `.csv` file with 1705 lines and that it does have a header. 
+
+```{r}
+gapminder<- read.csv("data/gapminder_data.csv", header = TRUE)
+```
+
+View data in another tab with `View()`
+
+when your data is in a github repo - you can also use it directly from the repo:
+
+```{r}
+library(data.table) # you might need to install this package
+
+gapminder<- fread("https://raw.githubusercontent.com/swcarpentry/r-novice-gapminder/gh-pages/_episodes_rmd/data/gapminder_data.csv", header = TRUE)
+```
+
+To get more information about the data:
+
+`dim()`
+
+`str()`
+
+`summary()`
+
+`length()`
+
+`nrow()`
+
+`ncol()`
+
+`names()`
+
+head()/tail()
+
+```{r}
+
+```
+
+other types we might see ? 
+
+```{r}
+str(factor(gapminder$continent))
+
+ordering_example <- factor(gapminder$continent, levels= c("Oceania", "Asia", "Europe", "Africa", "Americas"))
+str(ordering_example)
+```
+
+`as.character()`  - change factors back into characters
+
+`as.numeric()`  - but need to use `as.character()` first
+
+can also set `stringsAsFactors = FALSE` when reading in data
+
+```{r}
+(gapminder$continent == "Asia")[c(1:100)]
+```
+
+
+
+## Subsetting Data Frames
+
+removing rows and columns (subsetting)
+
+by number
+
+```{r}
+gapminder[-1,]
+```
+
+```{r}
+gapminder[,-1]
+```
+
+drop multiple rows/columns ...
+
+```{r}
+
+```
+
+
+drop or select columns by name
+
+```{r}
+gapminder[, c("year", "pop", "continent")]
+```
+
+```{r}
+gapminder[ , -c("year", "pop", "continent")]
+```
+
+
+
+select rows conditionally 
+
+```{r}
+gapminder[country == "Zimbabwe",]
+```
+
+```{r}
+gapminder[country!= "Afghanistan",]
+```
+
+
+```{r}
+gapminder[lifeExp >= 80,]
+```
+
+using `&` and `|` 
+
+```{r}
+
+```
+
+
+## Control Flow
+
+if, if else, and for 
+
+allows us to control when an action is taken
+
+```
+# if
+if (condition is true) {
+  perform action
+}
+
+# if ... else
+if (condition is true) {
+  perform action
+} else {  # that is, if the condition is false,
+  perform alternative action
+}
+```
+
+examples:
+
+```{r}
+x <- 8
+
+if (x >= 10) {
+  print("x is greater than or equal to 10")
+}
+
+x
+```
+
+
+```{r}
+x <- 8
+
+if (x >= 10) {
+  print("x is greater than or equal to 10")
+} else {
+  print("x is less than 10")
+}
+```
+
+
+
+```{r}
+x <- 8
+
+if (x >= 10) {
+  print("x is greater than or equal to 10")
+} else if (x > 5) {
+  print("x is greater than 5, but less than 10")
+} else {
+  print("x is less than 5")
+}
+
+```
+
+**Challenge:**
+
+Use an if() statement to print a suitable message reporting whether there are any records from 2002 in the `gapminder` dataset:
+
+```{r}
+
+```
+
+
+
+Looping 
+
+If you want to iterate over a set of values, when the order of iteration is important, and perform the same operation on each, a `for()` loop will do the job. 
+
+Basic Structure:
+```
+for (iterator in set of values) {
+  do a thing
+}
+```
+Example
+
+```{r}
+for (i in 1:10) {
+  print(i)
+}
+```
+
+
+Nested for loop: 
+
+```{r}
+for (i in 1:5) {
+  for (j in c('a', 'b', 'c', 'd', 'e')) {
+    print(paste(i,j))
+  }
+}
+```
+
+
+storing results 
+```{r}
+output_vector <- c()
+for (i in 1:5) {
+  for (j in c('a', 'b', 'c', 'd', 'e')) {
+    temp_output <- paste(i, j)
+    output_vector <- c(output_vector, temp_output)
+  }
+}
+```
+
+
+**Challenge:** 
+
+
+Write a script that loops through the `gapminder` data by continent and prints out whether the mean life expectancy is smaller or larger than 50 years.
+
+```{r}
+
+```
+
+
+## Functions
+
+reusable! (and therefore reproducible!)
+
+Often start by writing a function within an interactive session. 
+
+Lets write a function that converts Fahrenheit to Celcius (bc I am moving to back to America and I'm going to need this)
+
+```{r}
+fahr_to_celc <- function(temp) {
+  celc <- ((temp - 32) * (5 / 9))
+  return(celc)
+}
+```
+
+
+get body temp in celcius: 
+(seems to be important these days)
+
+```{r}
+fahr_to_celc(98.6)
+```
+
+Stopifnot
+
+```{r}
+fahr_to_celc <- function(temp) {
+  stopifnot(is.numeric(temp))
+  celc <- ((temp - 32) * (5 / 9))
+  return(celc)
+}
+```
+
+What happens if you call with a number?
+```{r}
+
+```
+
+What if you call with a string? 
+
+```{r}
+
+```
+
+
+Combining Functions:
+
+Define two functions 
+
+1. fahrenheit to celcius 
+2. celcius to kelvin 
+
+Define a new function that calls both these functions to convert fahrenheit to kelvin
+
+```{r}
+
+```
+
+
+A more useful example: 
+
+
+Calculate gross domestic product in our data set
+
+```{r}
+# Takes a dataset and multiplies the population column
+# with the GDP per capita column.
+calcGDP <- function(dat) {
+  gdp <- dat$pop * dat$gdpPercap
+  return(gdp)
+}
+```
+
+
+```{r}
+calcGDP(head(gapminder))
+```
+
+But that is not super useful - lets add more arguments so we can extract per country per year : 
+
+```{r}
+# Takes a dataset and multiplies the population column
+# with the GDP per capita column.
+calcGDP <- function(dat, year=NULL, country=NULL) {
+  if(!is.null(year)) {
+    dat <- dat[dat$year %in% year, ]
+  }
+  if (!is.null(country)) {
+    dat <- dat[dat$country %in% country,]
+  }
+  gdp <- dat$pop * dat$gdpPercap
+
+  new <- cbind(dat, gdp=gdp)
+  return(new)
+}
+
+```
+
+default arguments are NULL
+
+
+```{r}
+head(calcGDP(gapminder, year=2007))
+```
+
+```{r}
+calcGDP(gapminder, country="Australia")
+```
+
+
+**Challenge:**
+Test out your GDP function by calculating the GDP for New Zealand in 1987. How does this differ from New Zealand’s GDP in 1952?
+
+```{r}
+
+```
+
+moving functions to rscripts and sourcing scripts 
+(best practices for data management!)
+
+
+
+## Dplyr 
+
+http://swcarpentry.github.io/r-novice-gapminder/13-dplyr/index.html
+
+
+![](https://raw.githubusercontent.com/allisonhorst/stats-illustrations/master/rstats-artwork/dplyr_wrangling.png)
