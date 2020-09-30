@@ -184,7 +184,7 @@ In terminal tab:
 
 `wget https://raw.githubusercontent.com/swcarpentry/r-novice-gapminder/gh-pages/_episodes_rmd/data/gapminder_data.csv`
 
-curl
+`curl`
 
 We will use the data later, but we can get a general sense of the data by looking at it in the terminal, which will help us decide how to load it into R later: 
 
@@ -489,7 +489,6 @@ for (i in 1:5) {
 
 **Challenge:** 
 
-
 Write a script that loops through the `gapminder` data by continent and prints out whether the mean life expectancy is smaller or larger than 50 years.
 
 ```{r}
@@ -561,9 +560,19 @@ Define two functions
 1. fahrenheit to celcius 
 2. celcius to kelvin 
 
+
 ```{r}
+fahr_to_celc <- function(fahr) {
+  stopifnot(is.numeric(fahr))
+  celc <- ((fahr - 32) * (5 / 9))
+  return(celc)
+}
 
-
+celc_to_kelv <- function(celc) {
+  stopifnot(is.numeric(celc))
+  kelv <- celc + 273
+  return(kelv)
+}
 
 ```
 
@@ -571,12 +580,28 @@ Define a new function that calls both these functions to convert fahrenheit to k
 
 ```{r}
 
+fahr_to_kelv <- function(fahr) {
+  tmp <- fahr_to_celc(fahr)
+  out <- celc_to_kelv(tmp)
+  return(out)
+}
+  
+fahr_to_kelv(44)
+
+```
+
+```{r}
+fahr_to_kelv <- function(fahr) {
+  out <- celc_to_kelv(fahr_to_celc(fahr))
+  return(out)
+}
+  
+fahr_to_kelv(44)
 ```
 
 
 
 A more useful example: 
-
 
 Calculate gross domestic product in our data set:
 
@@ -592,6 +617,11 @@ calcGDP <- function(dat) {
 
 ```{r}
 calcGDP(head(gapminder))
+
+gapminder$GDP <- calcGDP(gapminder)
+
+gapminder$GDP2 <- gapminder$pop * gapminder$gdpPercap
+
 ```
 
 But that is not super useful - lets add more arguments so we can extract per country per year : 
@@ -618,24 +648,30 @@ default arguments are NULL
 
 
 ```{r}
-head(calcGDP(gapminder, year=2007))
+head(calcGDP(gapminder, country = "Algeria"))
 ```
 
 ```{r}
 calcGDP(gapminder, country="Australia")
 ```
 
-
 **Challenge:**
 Test out your GDP function by calculating the GDP for New Zealand in 1987. How does this differ from New Zealand’s GDP in 1952?
 
 ```{r}
-
+calcGDP(gapminder, country = "New Zealand", year = 1987)
 ```
 
 moving functions to rscripts and sourcing scripts 
 (best practices for project management!)
 
+```{r}
+source("src/calculateGDP.R")
+```
+
+```{r}
+calculateGDP(head(gapminder))
+```
 
 
 ## Dplyr 
@@ -669,8 +705,17 @@ library(dplyr)
 `select()`
 
 ```{r}
-
+head(gapminder[,c("pop", "continent", "lifeExp")])
 ```
+
+```{r}
+head(select(gapminder, pop, continent, lifeExp))
+```
+
+```{r}
+head(gapminder %>% select(pop, continent, lifeExp))
+```
+
 
 
 ![](http://swcarpentry.github.io/r-novice-gapminder/fig/13-dplyr-fig1.png)
@@ -680,7 +725,9 @@ library(dplyr)
 pipes `%>%` and `filter()`
 
 ```{r}
-
+gapminder %>%
+  select(pop, continent, lifeExp) %>%
+  filter(continent %in% c("Asia", "Africa"), lifeExp >= 75)
 ```
 
 
@@ -688,21 +735,27 @@ pipes `%>%` and `filter()`
 Write a single command (which can span multiple lines and includes pipes) that will produce a dataframe that has the African values for lifeExp, country and year, but not for other Continents. How many rows does your dataframe have and why?
 
 ```{r}
-
+gapminder %>% filter(continent == "Africa") %>% select(lifeExp, country, year)
 ```
+
+
+
 
 
 Using `group_by()` and `summarize()`:
 
 ```{r}
-
+gapminder %>%
+  group_by(continent) 
 ```
 
 
 ![](http://swcarpentry.github.io/r-novice-gapminder/fig/13-dplyr-fig2.png)
 
 ```{r}
-
+gapminder %>%
+  group_by(continent) %>% 
+  dplyr::summarize(mean_lifeExp = mean(lifeExp))
 ```
 
 ![](http://swcarpentry.github.io/r-novice-gapminder/fig/13-dplyr-fig3.png)
@@ -711,6 +764,16 @@ Using `group_by()` and `summarize()`:
 
 Calculate the average life expectancy per country. Which has the longest average life expectancy and which has the shortest average life expectancy?
 ```{r}
+gapminder %>% 
+  group_by(country) %>% 
+  summarize(mean = mean(lifeExp)) %>% 
+  filter(mean == range(mean))
+
+
+gapminder %>% 
+  group_by(country) %>% 
+  summarize(mean = mean(lifeExp)) %>% 
+  arrange(desc(mean))
 
 ```
 
@@ -718,17 +781,24 @@ Calculate the average life expectancy per country. Which has the longest average
 using `count()` and `n()`:
  
 ```{r}
-
+head(gapminder %>% filter(year == 2002)  %>% 
+  count(continent))
 ```
 
 ```{r}
-
+head(gapminder %>% group_by(continent) %>% 
+  summarize(manualmean = sum(lifeExp) / n()))
 ```
 
 
 Using `mutate()`:
 
 ```{r}
+gapminder$GDP2 <- gapminder$pop * gapminder$gdpPercap
+
+head(gapminder %>% 
+  select(country, pop, gdpPercap) %>% 
+  transmute(GDP3 = pop*gdpPercap))
 
 ```
 
@@ -736,13 +806,21 @@ Using `mutate()`:
 Connecting mutate() with logical filtering: `ifelse()`
 
 ```{r}
-
+gapminder %>% 
+  mutate( gdp = ifelse(lifeExp >25, gdpPercap * pop, NA)) %>% 
+  filter(is.na(gdp))
 ```
 
 
 Some extras: 
 
 ![](https://raw.githubusercontent.com/allisonhorst/stats-illustrations/master/rstats-artwork/dplyr_across.png)
+
+```{r}
+gapminder %>% 
+  group_by(continent) %>% 
+  summarize(across(where(is.numeric), mean))
+```
 
 
 ![](https://raw.githubusercontent.com/allisonhorst/stats-illustrations/master/rstats-artwork/dplyr_case_when.png)
