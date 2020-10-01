@@ -946,3 +946,139 @@ Going in the other direction ... (time dependent)
 
 
 # Ggplot! 
+
+Cheatsheet: https://rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf
+
+Cook Book: http://www.cookbook-r.com/Graphs/
+
+Plotting can be for exploration or for sharing. Often what a plot looks like will depend on why you are making it (i.e. exploration v. sharing). 
+
+**Explore:** 
+![](https://raw.githubusercontent.com/allisonhorst/stats-illustrations/master/rstats-artwork/ggplot2_exploratory.png)
+
+
+**Share:**
+
+![](https://raw.githubusercontent.com/allisonhorst/stats-illustrations/master/rstats-artwork/ggplot2_masterpiece.png)
+
+Question: What would be different in the you *you* make a plot based on whether it is for exploring or sharing? 
+
+Since this minicourse is about reproducible analyses for sharing and publishing  - we will work on making sharable plots. 
+
+```{r}
+library(ggplot2) # we already loaded, but just incase
+```
+
+
+GG = the grammar of graphics 
+
+ggplots are built in layers (same concept as illustrator)
+
+1st layer: 
+
+```{r}
+ggplot()
+```
+
+the "canvas" so to speak 
+
+2nd layer:
+
+```{r}
+ggplot(gapminder, aes(x=year, y = gdpPercap))
+```
+
+The aesthetics (based on the data)
+
+
+3rd layer: 
+
+```{r}
+ggplot(gapminder, aes(x=gdpPercap, y = lifeExp)) +
+  geom_point()
+```
+
+
+**Challenge:**
+Modify the example so that the figure shows how life expectancy has changed over time
+
+```{r}
+
+```
+
+In the previous examples and challenge we’ve used the aes function to tell the scatterplot geom about the x and y locations of each point. Another aesthetic property we can modify is the point color. Modify the code from the previous challenge to color the points by the “continent” column. What trends do you see in the data? Are they what you expected?
+
+```{r}
+
+```
+
+### Color!!
+
+https://github.com/karthik/wesanderson
+
+https://cran.r-project.org/web/packages/jcolors/vignettes/using_the_jcolors_package.html
+
+https://www.r-graph-gallery.com/38-rcolorbrewers-palettes.html
+
+https://github.com/dill/beyonce
+
+https://color.hailpixel.com/
+
+
+### geoms 
+bar, box, violin, text, line, smooth (lm or loess) .... 
+order matters
+
+geom_hline(yintercept, linetype, color, size)
+
+
+alpha()
+jitter()
+scale_x_log10()
+
+### Labels
+```
+labs(
+    x = "Year",              # x axis title
+    y = "Life expectancy",   # y axis title
+    title = "Figure 1",      # main title of figure
+    color = "Continent"      # title of legend
+  )
+```
+
+More on Titles, subtitles, and captions: 
+https://www.datanovia.com/en/blog/ggplot-title-subtitle-and-caption/
+
+### Themes:
+
+```{r}
+ggplot(gapminder, aes(x=gdpPercap, y = lifeExp)) +
+  geom_point() + theme_bw()
+```
+
+https://ggplot2.tidyverse.org/reference/ggtheme.html
+
+https://jrnold.github.io/ggthemes/reference/index.html
+
+
+### facets 
+
+multipanel plots
+
+### Saving plots
+
+ggsave
+
+### Putting plots together
+
+![](https://github.com/allisonhorst/stats-illustrations/raw/master/rstats-artwork/patchwork_1.jpg)
+
+```{r}
+install.packages("patchwork")
+
+library(patchwork)
+```
+
+https://gotellilab.github.io/GotelliLabMeetingHacks/NickGotelli/ggplotPatchwork.html
+
+# Knit and Host!
