@@ -876,11 +876,11 @@ For the ‘wide’ format each row is often a site/subject/patient and you have 
 library(tidyr)
 ```
 
-
 **Question:**
 
 Is gapminder a purely long, purely wide, or some intermediate format?
 
+Answer - intermediate
 
 Using `pivot`:
 
@@ -894,7 +894,7 @@ https://raw.githubusercontent.com/swcarpentry/r-novice-gapminder/gh-pages/_episo
 Then read the data into R and name the dataframe `gap_wide`:
 ```{r}
 
-
+gap_wide<- read.csv("data/gapminder_wide.csv")
 ```
  
  or
@@ -939,10 +939,26 @@ gap_long$year <- as.integer(gap_long$year)
 Using `gap_long`, calculate the mean life expectancy, population, and gdpPercap for each continent. Hint: use the `group_by()` and `summarize()` functions
 
 ```{r}
+gap_long %>% group_by(continent, obs_type) %>% 
+  summarize(mean(obs_values))
+```
 
+
+
+```{r}
+gap_long %>% 
+  group_by(continent, obs_type) %>% 
+  summarize(mean(obs_values))
 ```
 
 Going in the other direction ... (time dependent)
+
+`pivot_wider()`
+
+```{r}
+gap_int<- gap_long %>% 
+  pivot_wider(names_from= "obs_type", values_from="obs_values")
+```
 
 
 # Ggplot! 
@@ -994,7 +1010,8 @@ The aesthetics (based on the data)
 3rd layer: 
 
 ```{r}
-ggplot(gapminder, aes(x=gdpPercap, y = lifeExp)) +
+gapminder %>% 
+  ggplot(aes(x=gdpPercap, y = lifeExp)) +
   geom_point()
 ```
 
@@ -1003,13 +1020,17 @@ ggplot(gapminder, aes(x=gdpPercap, y = lifeExp)) +
 Modify the example so that the figure shows how life expectancy has changed over time
 
 ```{r}
-
+gapminder %>% 
+  ggplot(aes(x=year, y = lifeExp)) +
+  geom_jitter(alpha = 0.5, width = 0.9)
 ```
 
 In the previous examples and challenge we’ve used the aes function to tell the scatterplot geom about the x and y locations of each point. Another aesthetic property we can modify is the point color. Modify the code from the previous challenge to color the points by the “continent” column. What trends do you see in the data? Are they what you expected?
 
 ```{r}
-
+gapminder %>% 
+  ggplot(aes(x=year, y = lifeExp)) +
+  geom_jitter(alpha = 0.5, width = 0.9, aes(color = continent))
 ```
 
 ### Color!!
@@ -1024,12 +1045,22 @@ https://github.com/dill/beyonce
 
 https://color.hailpixel.com/
 
+https://github.com/zumbov2/colorfindr
+
 
 ### geoms 
 bar, box, violin, text, line, smooth (lm or loess) .... 
 order matters
 
 geom_hline(yintercept, linetype, color, size)
+
+```{r}
+gapminder$year <- as.numeric(gapminder$year)
+gapminder %>% 
+  ggplot() +
+  geom_point(aes(x = year, y = lifeExp, color = continent)) +
+  geom_violin(aes(x = year, y = lifeExp, color = continent)) 
+```
 
 
 alpha()
@@ -1053,32 +1084,58 @@ https://www.datanovia.com/en/blog/ggplot-title-subtitle-and-caption/
 
 ```{r}
 ggplot(gapminder, aes(x=gdpPercap, y = lifeExp)) +
-  geom_point() + theme_bw()
+  geom_point() + theme_void()
 ```
 
 https://ggplot2.tidyverse.org/reference/ggtheme.html
 
 https://jrnold.github.io/ggthemes/reference/index.html
 
+xkcd: https://cran.r-project.org/web/packages/xkcd/vignettes/xkcd-intro.pdf
+
 
 ### facets 
 
 multipanel plots
 
+```{r}
+p1 <- gapminder %>% 
+  ggplot(aes(x = year, y = lifeExp, color = continent)) +
+  facet_wrap(~continent, scales = "free_y") +
+  geom_point() +
+  scale_y_continuous(n.breaks=3)
+
+p1
+```
+
 ### Saving plots
 
 ggsave
+
+```{r}
+ggsave("faceted_lifeExpByYear.pdf", height = 5, width = 7, useDingbats= FALSE, dpi= 300)
+```
+
 
 ### Putting plots together
 
 ![](https://github.com/allisonhorst/stats-illustrations/raw/master/rstats-artwork/patchwork_1.jpg)
 
+https://patchwork.data-imaginist.com/
+
 ```{r}
-install.packages("patchwork")
+#install.packages("patchwork")
 
 library(patchwork)
 ```
 
 https://gotellilab.github.io/GotelliLabMeetingHacks/NickGotelli/ggplotPatchwork.html
+
+```{r}
+(p1 + p1) / p1
+
+```
+
+old  = ggarrange
 
 # Knit and Host!
